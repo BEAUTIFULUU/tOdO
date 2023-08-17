@@ -3,23 +3,25 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
-
-class Category(models.Model):
-    title = models.CharField(max_length=100)
+class List(models.Model):
+    date = models.DateField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lists')
 
 
 class Task(models.Model):
-
     is_completed = models.BooleanField(default=False)
-    date = models.DateField()
-    title = models.CharField(max_length=50)
-    description = models.CharField(max_length=500)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
-    category = models.ForeignKey(Category, related_name='tasks', on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.CharField(max_length=400)
+    list = models.ForeignKey(List, on_delete=models.CASCADE, related_name='task')
 
 
-class Summary(models.Model):
-    done = models.IntegerField(max_length=2)
-    undone = models.IntegerField(max_length=2)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+
+
+
+
+
+
+
 

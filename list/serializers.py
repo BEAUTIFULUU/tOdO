@@ -1,16 +1,20 @@
 from rest_framework import serializers
-from .models import Task, Category
+from .models import Task, List
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class ListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Category
-        fields = ['title']
+        model = List
+        fields = ['id', 'date']
 
 
-class TaskSerializer(serializers.ModelSerializer):
-    category = CategorySerializer
+class CreateListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = List
+        fields = ['date']
 
+
+class TasksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'is_completed', 'date', 'title', 'category', 'description']
+        fields = ['is_completed', 'title', 'description']

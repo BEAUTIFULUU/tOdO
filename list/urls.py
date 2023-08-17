@@ -1,9 +1,17 @@
 from rest_framework_nested import routers
 from django.urls import path, include
 from . import views
-from .views import TasksViewSet
+from .views import ListView
 
-router = routers.DefaultRouter()
-router.register('tasks', views.TasksViewSet, basename='tasks')
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('lists/', ListView.as_view())
+]
+
+
+
+
+
+
+
+
