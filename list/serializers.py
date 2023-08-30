@@ -6,13 +6,13 @@ from .models import Task, List
 class ListSerializer(serializers.ModelSerializer):
     class Meta:
         model = List
-        fields = ['id', 'date']
+        fields = ['id', 'date', 'important_event']
 
 
 class CreateUpdateListSerializer(serializers.ModelSerializer):
     class Meta:
         model = List
-        fields = ['date']
+        fields = ['date', 'important_event']
 
 
 class ListDetailSerializer(serializers.ModelSerializer):

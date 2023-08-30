@@ -4,7 +4,8 @@ from django.utils import timezone
 
 
 class List(models.Model):
-    date = models.DateField(null=True, blank=True, default=timezone.now().date())
+    date = models.DateField(null=False, blank=True, default=timezone.now().date())
+    important_event = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lists')
 
 
@@ -15,6 +16,7 @@ class Task(models.Model):
     TAG_FITNESS = 'Fitness'
     TAG_LEARNING = 'Learning'
     TAG_OTHER = 'Other'
+
     TAG_CHOICES = [
         (TAG_HOME, 'Home'),
         (TAG_SHOP, 'Shop'),
@@ -23,6 +25,7 @@ class Task(models.Model):
         (TAG_LEARNING, 'Learning'),
         (TAG_OTHER, 'Other')
     ]
+
     is_completed = models.BooleanField(default=False)
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=400)
