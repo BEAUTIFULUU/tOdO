@@ -1,9 +1,7 @@
-from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework import status, generics
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Prefetch
 from .serializers import TaskSerializer, ListSerializer, CreateUpdateListSerializer, ListDetailSerializer, \
     CreateUpdateTaskSerializer
 from .logic import get_user_lists, get_list_details, get_list_tasks, get_task_details
@@ -13,7 +11,7 @@ class ListView(generics.ListCreateAPIView):
     serializer_class = ListSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['date']
+    filterset_fields = ['date', 'important_event']
 
     def get_queryset(self):
         return get_user_lists(user=self.request.user)

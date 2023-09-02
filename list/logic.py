@@ -1,4 +1,4 @@
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q
 from .models import Task, List
 from django.shortcuts import get_object_or_404
 
