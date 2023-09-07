@@ -12,113 +12,148 @@ User = get_user_model()
 
 @pytest.fixture
 def create_test_data():
-    # Create test user
     user = User.objects.create_user(username='testuser', password='testpassword')
-
-    # Create a test list
-    list_obj = List.objects.create(user=user, date='2023-09-05', important_event=True)
-
-    # Create a test task associated with the list
+    list_obj = List.objects.create(user=user, date='2023-09-05', important_task=True)
     task = Task.objects.create(
-        list=list_obj,
-        title='Sample Task',
-        description='This is a test task',
-    )
-
+        list=list_obj, is_completed=True, title='Sample Task', description='This is a test task', tag='Home')
     return user, list_obj, task
 
 
-# LIST TESTS
 @pytest.mark.django_db
-def test_get_user_lists(create_test_data):
-    # Unpacking data from fixture
-    user, _, _ = create_test_data
+class TestListLogic:
+    def test_get_user_lists(self, create_test_data):
+        user, _, _ = create_test_data
 
-    lists = get_user_lists(user=user)
-    assert len(lists) == 1
-    assert lists[0].user == user
+        lists = get_user_lists(user=user)
+        assert len(lists) == 1
+        assert lists[0].user == user
 
+    def test_get_list_details(self, create_test_data):
+        _, list_obj, _ = create_test_data
 
-@pytest.mark.django_db
-def test_get_list_details(create_test_data):
-    _, list_obj, _ = create_test_data
+        list_details = get_list_details(list_id=list_obj.id)
+        assert list_details.id == list_obj.id
+        assert str(list_details.date) == '2023-09-05'
+        assert list_details.important_task is True
 
-    list_details = get_list_details(list_id=list_obj.id)
-    assert list_details.id == list_obj.id
-    assert str(list_details.date) == '2023-09-05'
-    assert list_details.important_event == True
+    def test_get_list_details_invalid_data(self):
+        with pytest.raises(Http404):
+            get_list_details(list_id=8888888)
 
-
-@pytest.mark.django_db
-def test_get_list_details_invalid_data():
-    with pytest.raises(Http404):
-        get_list_details(list_id=8888888)
-
-
-@pytest.mark.django_db
-def test_get_list_details_missing_data():
-    with pytest.raises(Http404):
-        get_list_details(None)
+    def test_get_list_details_missing_data(self):
+        with pytest.raises(Http404):
+            get_list_details(None)
 
 
 # TASKS TESTS
 @pytest.mark.django_db
-def test_get_list_tasks(create_test_data):
-    _, list_obj, _ = create_test_data
+class TestTaskLogic:
+    def test_get_list_tasks(self, create_test_data):
+        _, list_obj, _ = create_test_data
 
-    tasks = get_list_tasks(list_id=list_obj.id)
-    assert len(tasks) == 1
-    assert tasks[0].title == 'Sample Task'
+        tasks = get_list_tasks(list_id=list_obj.id)
+        assert len(tasks) == 1
+        found_task = None
+        for task in tasks:
+            if task.title == 'Sample Task':
+                found_task = task
+                break
+        assert found_task is not None
 
+    def test_get_task_details(self, create_test_data):
+        _, _, task = create_test_data
 
-@pytest.mark.django_db
-def test_get_task_details(create_test_data):
-    _, _, task = create_test_data
+        task_details = get_task_details(task_id=task.id)
+        assert task_details.id == task.id
+        assert task_details.description == 'This is a test task'
 
-    task_details = get_task_details(task_id=task.id)
-    assert task_details.id == task.id
-    assert task_details.description == 'This is a test task'
+    def test_get_task_details_invalid_data(self):
+        with pytest.raises(Http404):
+            get_task_details(task_id=888888)
 
+    def test_get_task_details_missing_task(self):
+        with pytest.raises(Http404):
+            get_task_details(task_id=None)
 
-@pytest.mark.django_db
-def test_get_task_details_invalid_data():
-    with pytest.raises(Http404):
-        get_task_details(task_id=888888)
-
-
-@pytest.mark.django_db
-def test_get_task_details_missing_task():
-    with pytest.raises(Http404):
-        get_task_details(task_id=None)
-
-
-# TEST PERMISSIONS
 
 @pytest.mark.django_db
-def test_if_anonymous_user_post_list_returns_403():
-    client = APIClient()
-    url_pattern_name = 'create_list'
-    data = {
-        'date': '2023-09-05',
-        'important_event': False
-    }
+class TestListPermissionsLogic:
+    def test_if_anonymous_user_post_list_returns_403(self):
+        client = APIClient()
+        url_pattern_name = 'create_list'
+        data = {
+            'date': '2023-09-05',
+            'important_task': False
+        }
 
-    response = client.post(reverse(url_pattern_name), data=data)
+        response = client.post(reverse(url_pattern_name), data=data)
 
-    assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
-@pytest.mark.django_db
-def test_if_anonymous_user_post_task_returns_403():
-    client = APIClient()
+    def test_if_anonymous_user_update_list_returns_403(self, create_test_data):
+        _, list_obj, _ = create_test_data
+        client = APIClient()
+        list_id = list_obj.id
+        url_pattern_name = 'update_delete_list'
+        data = {
+            'date': '2023-09-06',
+            'important_task': False
+        }
 
-    url_pattern_name = 'create_task'
+        response = client.put(reverse(url_pattern_name, kwargs={'list_id': list_id}), data=data, format='json')
 
-    data = {
-        'title': 'New task',
-        'description': 'Description',
-        'tag': 'Work'
-    }
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    response = client.post(reverse(url_pattern_name, kwargs={'list_id': 1}), data=data, format='json')
+    def test_if_anonymous_user_delete_list_returns_403(self, create_test_data):
+        _, list_obj, _ = create_test_data
+        client = APIClient()
+        list_id = list_obj.id
+        url_pattern_name = 'update_delete_list'
+        response = client.delete(reverse(url_pattern_name, kwargs={'list_id': list_id}))
 
-    assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    @pytest.mark.django_db
+    class TestTaskPermissionsLogic:
+        def test_if_anonymous_user_post_task_returns_403(self):
+            client = APIClient()
+            url_pattern_name = 'create_task'
+
+            data = {
+                'is_completed': False,
+                'title': 'New task',
+                'description': 'Description',
+                'tag': 'Work'
+            }
+
+            response = client.post(reverse(url_pattern_name, kwargs={'list_id': 1}), data=data, format='json')
+
+            assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        def test_if_anonymous_user_update_task_returns_403(self, create_test_data):
+            _, list_obj, task = create_test_data
+            task_id = task.id
+            list_id = list_obj.id
+            client = APIClient()
+            url_pattern_name = 'update_delete_task'
+            data = {
+                'is_completed': True,
+                'title': 'Old Task',
+                'description': 'Second Description',
+                'tag': 'Sport'
+            }
+
+            response = client.put(reverse(url_pattern_name, kwargs={'list_id': list_id, 'task_id': task_id}), data=data)
+            assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        def test_if_anonymous_user_delete_task_returns_403(self, create_test_data):
+            _, list_obj, task = create_test_data
+            client = APIClient()
+            task_id = task.id
+            list_id = list_obj.id
+            url_pattern_name = 'update_delete_task'
+
+            response = client.delete(reverse(url_pattern_name, kwargs={'list_id': list_id, 'task_id': task_id}))
+            assert response.status_code == status.HTTP_403_FORBIDDEN
+
+

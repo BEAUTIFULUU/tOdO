@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework import status, generics
 from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import TaskSerializer, ListSerializer, CreateUpdateListSerializer, ListDetailSerializer, \
+from .serializers import TaskSerializer, ListSerializer, CreateListSerializer, ListDetailSerializer, \
     CreateUpdateTaskSerializer
 from .logic import get_user_lists, get_list_details, get_list_tasks, get_task_details
 
@@ -11,13 +11,13 @@ class ListView(generics.ListCreateAPIView):
     serializer_class = ListSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['date', 'important_event']
+    filterset_fields = ['date', 'important_task']
 
     def get_queryset(self):
         return get_user_lists(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
-        serializer = CreateUpdateListSerializer(data=request.data)
+        serializer = CreateListSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
         return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
@@ -30,7 +30,7 @@ class ListDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         list_id = self.kwargs['list_id']
-        return get_list_details(list_id)
+        return get_list_details(list_id=list_id)
 
     def update(self, request, *args, **kwargs):
         update_list = self.get_object()
