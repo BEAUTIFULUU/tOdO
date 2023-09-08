@@ -276,3 +276,82 @@ class TestTaskPermissionsLogic:
 
         response = client.delete(reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}))
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestTaskInvalidData:
+    def test_create_task_with_no_title_returns_400(self, create_authenticated_user, create_list):
+        list_obj = create_list
+        user, client = create_authenticated_user(username='123', password='123')
+        url_pattern = 'get_create_task'
+        data = {
+            'is_completed': True,
+            'description': 'description',
+            'tag': 'Home'
+        }
+
+        response = client.post(
+            reverse(url_pattern, kwargs={'list_id': list_obj.id}), data=data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_task_with_no_description_returns_400(self, create_authenticated_user, create_list):
+        list_obj = create_list
+        user, client = create_authenticated_user(username='123', password='123')
+        url_pattern = 'get_create_task'
+        data = {
+            'is_completed': True,
+            'title': 'title',
+            'tag': 'Home'
+        }
+
+        response = client.post(reverse(url_pattern, kwargs={'list_id': list_obj.id}), data=data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_task_with_no_title_returns_404(self, create_authenticated_user, create_list, create_task):
+        list_obj = create_list
+        task = create_task
+        user, client = create_authenticated_user(username='123', password='123')
+        url_pattern = 'update_delete_task'
+        data = {
+            'is_completed': True,
+            'description': 'description',
+            'tag': 'Home'
+        }
+
+        response = client.put(reverse(
+            url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}), data=data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_task_with_no_description_returns_404(self, create_authenticated_user, create_list, create_task):
+        list_obj = create_list
+        task = create_task
+        user, client = create_authenticated_user(username='123', password='123')
+        url_pattern = 'update_delete_task'
+        data = {
+            'is_completed': True,
+            'title': 'title',
+            'tag': 'Home'
+        }
+
+        response = client.put(reverse(
+            url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}), data=data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.fixture
+def create_users():
+    user1 = User.objects.create_user(username='user1', password='password1')
+    user2 = User.objects.create_user(username='user2', password='password2')
+    return user1, user2
+
+
+@pytest.fixture
+def create_authenticated_client(create_users):
+    user, _ = create_users
+    client = APIClient()
+    client.force_authenticate(user=user)
+    return client
+
+
+
+
