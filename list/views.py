@@ -5,12 +5,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import TaskSerializer, ListSerializer, CreateListSerializer, ListDetailSerializer, \
     CreateUpdateTaskSerializer
 from .logic import get_user_lists, get_list_details, get_list_tasks, get_task_details
-from .permissions import IsOwner, IsTaskOwner
+from .permissions import ListOwnerPermission, TaskOwnerPermission
 
 
 class ListView(generics.ListCreateAPIView):
     serializer_class = ListSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [ListOwnerPermission, permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['date', 'important_task']
 
@@ -26,7 +26,7 @@ class ListView(generics.ListCreateAPIView):
 
 class ListDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ListDetailSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated, ListOwnerPermission]
     lookup_field = 'list_id'
 
     def get_object(self):
@@ -43,7 +43,7 @@ class ListDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class TaskView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [permissions.IsAuthenticated, IsTaskOwner]
+    permission_classes = [permissions.IsAuthenticated, TaskOwnerPermission]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_completed', 'tag']
 
@@ -60,7 +60,7 @@ class TaskView(generics.ListCreateAPIView):
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CreateUpdateTaskSerializer
-    permission_classes = [permissions.IsAuthenticated, IsTaskOwner]
+    permission_classes = [permissions.IsAuthenticated, TaskOwnerPermission]
     lookup_field = 'task_id'
 
     def get_object(self):

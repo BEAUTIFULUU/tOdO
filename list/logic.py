@@ -17,10 +17,10 @@ def get_list_details(list_id):
 
 # TASKS LOGIC
 def get_list_tasks(list_id):
-    tasks = Task.objects.filter(list_id=list_id).prefetch_related('list')
+    tasks = Task.objects.filter(list_id=list_id).select_related('list')
     return tasks
 
 
 def get_task_details(task_id):
-    task_details = get_object_or_404(Task, id=task_id)
+    task_details = get_object_or_404(Task.objects.select_related("list__user"), id=task_id)
     return task_details
