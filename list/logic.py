@@ -8,7 +8,7 @@ def get_user_lists(user):
     return lists
 
 
-def get_list_details(list_id):
+def get_list_details(list_id) -> List:
     queryset = List.objects.filter(
         id=list_id).annotate(completed_tasks=Count('tasks', Q(tasks__is_completed=True)), total_tasks=Count('tasks'))
     return get_object_or_404(queryset)
@@ -19,6 +19,6 @@ def get_list_tasks(list_id):
     return tasks
 
 
-def get_task_details(task_id):
+def get_task_details(task_id) -> Task:
     task_details = get_object_or_404(Task.objects.select_related("list__user"), id=task_id)
     return task_details
