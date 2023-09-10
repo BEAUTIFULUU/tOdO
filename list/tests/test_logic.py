@@ -26,9 +26,9 @@ def create_list(create_user):
 @pytest.fixture
 def create_task(create_list):
     list_obj = create_list
-    task = Task.objects.create(
+    task_obj = Task.objects.create(
         list=list_obj, is_completed=True, title='Sample Task', description='This is a test task', tag='Home')
-    return task
+    return task_obj
 
 
 def make_authenticated_user(username, password):
@@ -79,10 +79,10 @@ class TestTaskLogic:
         assert found_task is not None
 
     def test_get_task_details(self, create_task):
-        task = create_task
+        task_obj = create_task
 
-        task_details = get_task_details(task_id=task.id)
-        assert task_details.id == task.id
+        task_details = get_task_details(task_id=task_obj.id)
+        assert task_details.id == task_obj.id
         assert task_details.description == 'This is a test task'
 
     def test_get_task_details_invalid_data(self):
@@ -203,7 +203,7 @@ class TestTaskPermissionsLogic:
 
     def test_if_authenticated_user_update_task_returns_200(self, create_list, create_task):
         list_obj = create_list
-        task = create_task
+        task_obj = create_task
         user, client = make_authenticated_user(username='123', password='123')
         url_pattern = 'update_delete_task'
         data = {
@@ -214,15 +214,15 @@ class TestTaskPermissionsLogic:
         }
 
         response = client.put(
-            reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}), data=data, format='json')
+            reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task_obj.id}), data=data, format='json')
         assert response.status_code == status.HTTP_200_OK
 
     def test_if_authenticated_user_delete_task_returns_204(self, create_list, create_task):
         list_obj = create_list
-        task = create_task
+        task_obj = create_task
         user, client = make_authenticated_user(username='123', password='123')
         url_pattern = 'update_delete_task'
-        response = client.delete(reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}))
+        response = client.delete(reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task_obj.id}))
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -250,7 +250,7 @@ class TestTaskPermissionsLogic:
 
     def test_if_anonymous_user_update_task_returns_403(self, create_list, create_task):
         list_obj = create_list
-        task = create_task
+        task_obj = create_task
         client = APIClient()
         url_pattern = 'update_delete_task'
         data = {
@@ -260,16 +260,16 @@ class TestTaskPermissionsLogic:
             'tag': 'Sport'
         }
 
-        response = client.put(reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}), data=data)
+        response = client.put(reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task_obj.id}), data=data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_if_anonymous_user_delete_task_returns_403(self, create_list, create_task):
         list_obj = create_list
-        task = create_task
+        task_obj = create_task
         client = APIClient()
         url_pattern = 'update_delete_task'
 
-        response = client.delete(reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}))
+        response = client.delete(reverse(url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task_obj.id}))
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
@@ -304,7 +304,7 @@ class TestTaskInvalidData:
 
     def test_update_task_with_no_title_returns_404(self, create_list, create_task):
         list_obj = create_list
-        task = create_task
+        task_obj = create_task
         user, client = make_authenticated_user(username='123', password='123')
         url_pattern = 'update_delete_task'
         data = {
@@ -314,12 +314,12 @@ class TestTaskInvalidData:
         }
 
         response = client.put(reverse(
-            url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}), data=data, format='json')
+            url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task_obj.id}), data=data, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_update_task_with_no_description_returns_404(self, create_list, create_task):
         list_obj = create_list
-        task = create_task
+        task_obj = create_task
         user, client = make_authenticated_user(username='123', password='123')
         url_pattern = 'update_delete_task'
         data = {
@@ -329,5 +329,5 @@ class TestTaskInvalidData:
         }
 
         response = client.put(reverse(
-            url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task.id}), data=data, format='json')
+            url_pattern, kwargs={'list_id': list_obj.id, 'task_id': task_obj.id}), data=data, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST

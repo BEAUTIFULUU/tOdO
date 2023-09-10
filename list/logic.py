@@ -3,7 +3,6 @@ from .models import Task, List
 from django.shortcuts import get_object_or_404
 
 
-# LIST LOGIC
 def get_user_lists(user):
     lists = List.objects.filter(user=user)
     return lists
@@ -15,7 +14,6 @@ def get_list_details(list_id):
     return get_object_or_404(queryset)
 
 
-# TASKS LOGIC
 def get_list_tasks(list_id):
     tasks = Task.objects.filter(list_id=list_id).select_related('list')
     return tasks

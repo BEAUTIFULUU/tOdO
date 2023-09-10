@@ -1,6 +1,4 @@
 from rest_framework import permissions
-from rest_framework.permissions import IsAuthenticated
-from .models import Task, List
 
 
 class ListOwnerPermission(permissions.BasePermission):
