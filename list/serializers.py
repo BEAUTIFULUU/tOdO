@@ -3,6 +3,8 @@ from .models import Task, List
 
 
 class ListSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+
     class Meta:
         model = List
         fields = ['id', 'date', 'important_task']
@@ -15,6 +17,7 @@ class CreateListSerializer(serializers.ModelSerializer):
 
 
 class ListDetailSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
     completed_tasks = serializers.ReadOnlyField()
     total_tasks = serializers.ReadOnlyField()
 
@@ -24,6 +27,8 @@ class ListDetailSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+
     class Meta:
         model = Task
         fields = ['id', 'is_completed', 'title', 'description', 'tag']

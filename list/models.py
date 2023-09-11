@@ -1,9 +1,11 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 
 class List(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     date = models.DateField(null=False, blank=False, default=timezone.now().date())
     important_task = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lists', null=False)
@@ -26,6 +28,7 @@ class Task(models.Model):
         (TAG_OTHER, 'Other')
     ]
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     is_completed = models.BooleanField(default=False)
     title = models.CharField(max_length=100, blank=False)
     description = models.CharField(max_length=400, blank=False)

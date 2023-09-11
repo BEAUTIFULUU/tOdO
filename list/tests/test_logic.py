@@ -1,4 +1,5 @@
 import pytest
+import uuid
 from django.contrib.auth import get_user_model
 from django.http import Http404
 from django.urls import reverse
@@ -245,7 +246,8 @@ class TestTaskPermissionsLogic:
             'tag': 'Work'
         }
 
-        response = client.post(reverse(url_pattern, kwargs={'list_id': 1}), data=data, format='json')
+        list_id = uuid.uuid4()
+        response = client.post(reverse(url_pattern, kwargs={'list_id': list_id}), data=data, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_if_anonymous_user_update_task_returns_403(self, create_list, create_task):
