@@ -42,20 +42,20 @@ class TestListViews:
 
     def test_list_view_return_lists_for_authenticated_user(self):
         user, client = make_authenticated_user(username='123', password='123')
-        url_pattern = reverse('get_create_list')
-        response = client.get(url_pattern)
+        url_pattern = 'get_create_list'
+        response = client.get(reverse(url_pattern))
 
         assert response.status_code == status.HTTP_200_OK
         assert isinstance(response.data.get('results'), list)
 
-    def test_list_view_creates_list_for_authenticated_user(self):
+    def test_list_view_create_list_for_authenticated_user(self):
         user, client = make_authenticated_user(username='123', password='123')
-        url_pattern = reverse('get_create_list')
+        url_pattern = 'get_create_list'
         data = {
             'date': '2023-09-10',
             'important_task': False,
         }
-        response = client.post(url_pattern, data=data, format='json')
+        response = client.post(reverse(url_pattern), data=data, format='json')
 
         assert response.status_code == status.HTTP_201_CREATED
         assert List.objects.filter(user=user).count() == 1
