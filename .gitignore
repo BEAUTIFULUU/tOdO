@@ -1,0 +1,30 @@
+# Ignore Python bytecode files
+*.pyc
+
+# Ignore database files
+db.sqlite3
+
+# Ignore development environment files
+dev.env
+
+# Ignore Docker-related files
+docker-compose.yml
+Dockerfile
+
+# Ignore IDE and text editor configuration files
+.idea/
+.vscode/
+
+# Ignore log files
+*.log
+
+# Ignore secret keys and sensitive data (e.g., secret.env)
+*.env
+
+# Ignore static files collected for production
+static/
+
+# Ignore media files uploaded by users
+media/
+
+fajno.py
